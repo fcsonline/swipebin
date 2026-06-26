@@ -143,6 +143,177 @@ body::before {
   }
 }
 
+/* Session header: back button + folder name */
+.app__bar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 7px 13px;
+  border-radius: 11px;
+  border: 1px solid var(--line);
+  background: var(--bg-elev);
+  color: var(--fg);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  flex: none;
+  transition: transform 0.12s ease, background 0.12s ease;
+}
+
+.back-btn:hover {
+  background: var(--bg-elev-2);
+  transform: translateX(-1px);
+}
+
+.back-btn:active {
+  transform: scale(0.96);
+}
+
+.session__folder {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--fg);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Folder picker */
+.picker__subtitle {
+  margin: 10px 0 0;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.picker__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 14px;
+  align-content: start;
+  overflow-y: auto;
+  padding: 12px 2px 24px;
+  margin: 4px 0;
+  -webkit-overflow-scrolling: touch;
+}
+
+.folder-card {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  overflow: hidden;
+  background: var(--bg-elev);
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+  transition: transform 0.14s ease, box-shadow 0.14s ease, border-color 0.14s ease;
+}
+
+.folder-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(110, 139, 255, 0.45);
+  box-shadow: 0 16px 34px -14px rgba(0, 0, 0, 0.7);
+}
+
+.folder-card:active {
+  transform: scale(0.98);
+}
+
+.folder-card__cover {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  background: repeating-conic-gradient(#10131c 0% 25%, #0c0f16 0% 50%) 50% / 22px 22px;
+}
+
+.folder-card__cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.folder-card__placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.5;
+}
+
+.folder-card__badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--keep);
+  color: #04150c;
+  font-size: 15px;
+  font-weight: 900;
+  box-shadow: 0 4px 12px rgba(24, 210, 122, 0.5);
+}
+
+.folder-card__body {
+  padding: 11px 12px 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.folder-card__name {
+  font-size: 14.5px;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.folder-card__meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.folder-card__left {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.folder-card__done {
+  color: var(--keep);
+  font-weight: 700;
+}
+
+.folder-card__bar {
+  height: 6px;
+  border-radius: 99px;
+  background: var(--bg-elev-2);
+  overflow: hidden;
+}
+
+.folder-card__fill {
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--accent), var(--keep));
+  transition: width 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 .app__title::after {
   content: 'SwipeBin';
   background: linear-gradient(90deg, var(--accent), var(--accent-2) 55%, var(--keep));

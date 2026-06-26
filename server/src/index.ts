@@ -4,15 +4,15 @@ import path from 'node:path';
 import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import QRCode from 'qrcode';
-import { APP_DIR, IMAGES_DIR, PORT, PUBLIC_HOST, PUBLIC_URL, WEB_DIR } from './config.js';
+import { APP_DIR, FOLDERS_DIR, IMAGES_DIR, PORT, PUBLIC_HOST, PUBLIC_URL, WEB_DIR } from './config.js';
 import * as catalog from './catalog.js';
-import { computeStats, loadState } from './store.js';
+import { loadState } from './store.js';
+import { foldersRouter, resolveFolder } from './routes/folders.js';
 import { queueRouter } from './routes/queue.js';
 import { previewRouter } from './routes/preview.js';
 import { decisionRouter } from './routes/decision.js';
 import { statsRouter } from './routes/stats.js';
 import { trashRouter } from './routes/trash.js';
-import type { Stats } from './types.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const webDir = WEB_DIR || path.resolve(__dirname, '../../web/dist');
@@ -33,11 +33,12 @@ function networkUrl(): string {
   return host ? `http://${host}:${PORT}` : `http://localhost:${PORT}`;
 }
 
-async function printBanner(stats: Stats): Promise<void> {
+async function printBanner(folders: number, images: number): Promise<void> {
   const url = networkUrl();
   const inDocker = existsSync('/.dockerenv');
+  const folderPart = folders === 1 ? '1 folder' : `${folders.toLocaleString()} folders`;
   console.log('');
-  console.log(`  🗑️  SwipeBin ready — ${stats.total.toLocaleString()} images found, ${stats.reviewed} reviewed`);
+  console.log(`  🗑️  SwipeBin ready — ${folderPart} · ${images.toLocaleString()} images`);
   console.log(`     ➜ Local:   http://localhost:${PORT}`);
   console.log(`     ➜ Network: ${url}`);
   if (inDocker && !PUBLIC_URL && !PUBLIC_HOST) {
@@ -55,10 +56,11 @@ async function printBanner(stats: Stats): Promise<void> {
 
 async function main(): Promise<void> {
   await loadState();
-  await catalog.refresh();
+  await catalog.refreshAll();
 
-  if (catalog.all().length === 0) {
-    console.warn(`  ⚠️  No images found in ${IMAGES_DIR} — mount your photos there (or check IMAGES_DIR).`);
+  if (catalog.totalImages() === 0) {
+    const where = FOLDERS_DIR ? `${FOLDERS_DIR}/<folder>` : IMAGES_DIR;
+    console.warn(`  ⚠️  No images found — mount your photos under ${where}.`);
   }
 
   const app = express();
@@ -67,11 +69,18 @@ async function main(): Promise<void> {
 
   const api = express.Router();
   api.get('/health', (_req, res) => res.json({ ok: true }));
-  api.use(queueRouter);
-  api.use(previewRouter);
-  api.use(decisionRouter);
-  api.use(statsRouter);
-  api.use(trashRouter);
+  api.use(foldersRouter); // GET /folders
+
+  // All per-image work is scoped to a folder.
+  const scoped = express.Router({ mergeParams: true });
+  scoped.use(resolveFolder);
+  scoped.use(queueRouter);
+  scoped.use(previewRouter);
+  scoped.use(decisionRouter);
+  scoped.use(statsRouter);
+  scoped.use(trashRouter);
+  api.use('/folders/:folderId', scoped);
+
   app.use('/api', api);
   // Unmatched API routes return JSON, not the SPA shell.
   app.use('/api', (_req, res) => res.status(404).json({ error: 'not found' }));
@@ -84,9 +93,9 @@ async function main(): Promise<void> {
   }
 
   app.listen(PORT, '0.0.0.0', () => {
-    console.log(`  Images:  ${IMAGES_DIR}`);
+    console.log(`  Folders: ${FOLDERS_DIR || IMAGES_DIR}`);
     console.log(`  State:   ${APP_DIR}`);
-    void printBanner(computeStats(catalog.all()));
+    void printBanner(catalog.folderCount(), catalog.totalImages());
   });
 }
 

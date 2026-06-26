@@ -1,13 +1,14 @@
 import { Router } from 'express';
 import { createReadStream } from 'node:fs';
-import * as catalog from '../catalog.js';
 import { getPreviewPath } from '../preview.js';
 import { PREVIEW_WIDTH } from '../config.js';
+import { folderOf } from './folders.js';
 
-export const previewRouter = Router();
+export const previewRouter = Router({ mergeParams: true });
 
 previewRouter.get('/images/:id/preview', async (req, res) => {
-  const item = catalog.getById(req.params.id);
+  const folder = folderOf(res);
+  const item = folder.byId.get(req.params.id);
   if (!item) {
     res.status(404).json({ error: 'not found' });
     return;
@@ -16,7 +17,7 @@ previewRouter.get('/images/:id/preview', async (req, res) => {
   const width = Math.min(Math.max(Number.isFinite(raw) ? raw : PREVIEW_WIDTH, 64), 4096);
 
   try {
-    const file = await getPreviewPath(item, width);
+    const file = await getPreviewPath(folder.id, folder.root, item, width);
     res.setHeader('Content-Type', 'image/jpeg');
     res.setHeader('Cache-Control', 'public, max-age=86400, immutable');
     createReadStream(file).pipe(res);

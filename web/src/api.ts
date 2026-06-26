@@ -18,29 +18,48 @@ export interface Stats {
   remaining: number;
 }
 
+export interface TrashSummary {
+  count: number;
+  bytes: number;
+}
+
+export interface FolderSummary extends Stats {
+  id: string;
+  name: string;
+  coverImageId: string | null;
+  trash: TrashSummary;
+}
+
 async function jsonFetch<T>(url: string, init?: RequestInit): Promise<T> {
   const res = await fetch(url, init);
   if (!res.ok) throw new Error(`${init?.method ?? 'GET'} ${url} → ${res.status}`);
   return res.json() as Promise<T>;
 }
 
-export function previewUrl(item: ImageItem, width = 1080): string {
-  return `/api/images/${item.id}/preview?w=${width}`;
+const base = (folderId: string) => `/api/folders/${encodeURIComponent(folderId)}`;
+
+export function previewUrl(folderId: string, imageId: string, width = 1080): string {
+  return `${base(folderId)}/images/${imageId}/preview?w=${width}`;
 }
 
-export function fetchQueue(limit = 20): Promise<{ items: ImageItem[] }> {
-  return jsonFetch(`/api/queue?limit=${limit}`);
+export function fetchFolders(): Promise<{ folders: FolderSummary[] }> {
+  return jsonFetch('/api/folders');
 }
 
-export function fetchStats(): Promise<Stats> {
-  return jsonFetch('/api/stats');
+export function fetchQueue(folderId: string, limit = 20): Promise<{ items: ImageItem[] }> {
+  return jsonFetch(`${base(folderId)}/queue?limit=${limit}`);
+}
+
+export function fetchStats(folderId: string): Promise<Stats> {
+  return jsonFetch(`${base(folderId)}/stats`);
 }
 
 export function postDecision(
+  folderId: string,
   id: string,
   action: DecisionAction,
 ): Promise<{ ok: boolean; stats: Stats }> {
-  return jsonFetch(`/api/images/${id}/decision`, {
+  return jsonFetch(`${base(folderId)}/images/${id}/decision`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ action }),
@@ -53,26 +72,23 @@ export interface UndoneEntry {
   at: string;
 }
 
-export function postUndo(): Promise<{
+export function postUndo(folderId: string): Promise<{
   ok: boolean;
   restored?: ImageItem;
   undone?: UndoneEntry;
   stats: Stats;
 }> {
-  return jsonFetch('/api/undo', { method: 'POST' });
+  return jsonFetch(`${base(folderId)}/undo`, { method: 'POST' });
 }
 
-export interface TrashSummary {
-  count: number;
-  bytes: number;
+export function fetchTrash(folderId: string): Promise<TrashSummary> {
+  return jsonFetch(`${base(folderId)}/trash`);
 }
 
-export function fetchTrash(): Promise<TrashSummary> {
-  return jsonFetch('/api/trash');
-}
-
-export function flushTrash(): Promise<{ ok: boolean; count: number; bytes: number; stats: Stats }> {
-  return jsonFetch('/api/trash/flush', { method: 'POST' });
+export function flushTrash(
+  folderId: string,
+): Promise<{ ok: boolean; count: number; bytes: number; stats: Stats }> {
+  return jsonFetch(`${base(folderId)}/trash/flush`, { method: 'POST' });
 }
 
 export function formatBytes(bytes: number): string {

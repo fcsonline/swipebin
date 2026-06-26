@@ -7,7 +7,14 @@ function envInt(name: string, fallback: number): number {
   return Number.isFinite(n) && n > 0 ? n : fallback;
 }
 
-/** Folder of images to triage (mount your photos here in Docker). */
+/**
+ * Multi-folder mode: each immediate subdirectory of FOLDERS_DIR is a separate
+ * collection to triage (mount each host folder to /data/folders/<name>). When it
+ * has no subdirs, the app falls back to the single legacy IMAGES_DIR below.
+ */
+export const FOLDERS_DIR = process.env.FOLDERS_DIR ? path.resolve(process.env.FOLDERS_DIR) : '';
+
+/** Legacy single folder of images to triage (back-compat: mount at /data/images). */
 export const IMAGES_DIR = path.resolve(process.env.IMAGES_DIR ?? 'photos');
 
 /** Where state.json and the preview cache live. */

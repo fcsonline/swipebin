@@ -6,12 +6,17 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      # 👇 Mount the folder of pictures you want to triage here.
-      - ./photos:/data/images
+      # 👇 Mount each folder you want to clean as its own collection under /data/folders.
+      #    The name after /data/folders/ is what shows in the app's folder picker.
+      #    Add or remove lines to add/remove collections.
+      - ./photos:/data/folders/Photos
+      # - "${HOME}/Pictures/Trip 2024:/data/folders/Trip 2024"
+      # - "${HOME}/Camera/RAW:/data/folders/RAW"
+
       # State (decisions) + generated preview cache, persisted across restarts.
       - swipebin-data:/data/app
     environment:
-      IMAGES_DIR: /data/images
+      FOLDERS_DIR: /data/folders
       APP_DIR: /data/app
       PORT: "3000"
       PREVIEW_WIDTH: "1080"

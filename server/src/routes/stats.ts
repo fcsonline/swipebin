@@ -1,9 +1,10 @@
 import { Router } from 'express';
-import * as catalog from '../catalog.js';
 import { computeStats } from '../store.js';
+import { folderOf } from './folders.js';
 
-export const statsRouter = Router();
+export const statsRouter = Router({ mergeParams: true });
 
 statsRouter.get('/stats', (_req, res) => {
-  res.json(computeStats(catalog.all()));
+  const folder = folderOf(res);
+  res.json(computeStats(folder.id, folder.items));
 });

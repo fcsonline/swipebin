@@ -3,12 +3,12 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import sharp from 'sharp';
-import { CACHE_DIR, IMAGES_DIR, PREVIEW_QUALITY } from './config.js';
+import { CACHE_DIR, PREVIEW_QUALITY } from './config.js';
 import type { ImageItem } from './types.js';
 
-function cacheKey(item: ImageItem, width: number): string {
+function cacheKey(folderId: string, item: ImageItem, width: number): string {
   const h = crypto.createHash('sha1');
-  h.update(`${item.relPath}|${item.mtimeMs}|${item.size}|${width}|q${PREVIEW_QUALITY}`);
+  h.update(`${folderId}|${item.relPath}|${item.mtimeMs}|${item.size}|${width}|q${PREVIEW_QUALITY}`);
   return `${h.digest('hex')}.jpg`;
 }
 
@@ -54,9 +54,14 @@ async function rawToJpeg(srcAbs: string, width: number): Promise<Buffer> {
  * Return a path to a cached JPEG preview for `item`, generating and caching it on a miss.
  * The cache key includes mtime + size, so edited files regenerate automatically.
  */
-export async function getPreviewPath(item: ImageItem, width: number): Promise<string> {
+export async function getPreviewPath(
+  folderId: string,
+  root: string,
+  item: ImageItem,
+  width: number,
+): Promise<string> {
   await fs.mkdir(CACHE_DIR, { recursive: true });
-  const cachePath = path.join(CACHE_DIR, cacheKey(item, width));
+  const cachePath = path.join(CACHE_DIR, cacheKey(folderId, item, width));
   try {
     await fs.access(cachePath);
     return cachePath;
@@ -64,7 +69,7 @@ export async function getPreviewPath(item: ImageItem, width: number): Promise<st
     // cache miss — generate below
   }
 
-  const srcAbs = path.join(IMAGES_DIR, item.relPath);
+  const srcAbs = path.join(root, item.relPath);
   const buffer = item.isRaw ? await rawToJpeg(srcAbs, width) : await toJpeg(await fs.readFile(srcAbs), width);
 
   const tmp = `${cachePath}.${process.pid}.tmp`;

@@ -11,6 +11,7 @@ export interface SwipeCommand {
 }
 
 interface Props {
+  folderId: string;
   item: ImageItem;
   isTop: boolean;
   /** 0 = top of the deck; higher = further back. */
@@ -20,7 +21,7 @@ interface Props {
   onDecide: (item: ImageItem, action: DecisionAction) => void;
 }
 
-export function SwipeCard({ item, isTop, stackIndex, command, onDecide }: Props) {
+export function SwipeCard({ folderId, item, isTop, stackIndex, command, onDecide }: Props) {
   const x = useMotionValue(0);
   const rotate = useTransform(x, [-260, 0, 260], [-16, 0, 16]);
   const keepOpacity = useTransform(x, [40, 150], [0, 1]);
@@ -80,7 +81,7 @@ export function SwipeCard({ item, isTop, stackIndex, command, onDecide }: Props)
       {!loaded && <div className="card__spinner" aria-hidden />}
       <img
         className="card__img"
-        src={previewUrl(item)}
+        src={previewUrl(folderId, item.id)}
         alt={item.name}
         draggable={false}
         onLoad={() => setLoaded(true)}

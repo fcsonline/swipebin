@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { IMAGES_DIR, IGNORED_DIRS } from './config.js';
+import { IGNORED_DIRS } from './config.js';
 import type { ImageItem } from './types.js';
 
 /** Browser-renderable formats handled directly by sharp/libvips. */
@@ -30,8 +30,8 @@ export function isSupportedExt(ext: string): boolean {
   return STANDARD_EXTS.has(ext) || RAW_EXTS.has(ext);
 }
 
-/** Recursively scan IMAGES_DIR for supported images, skipping hidden + ignored dirs. */
-export async function scanImages(): Promise<ImageItem[]> {
+/** Recursively scan `root` for supported images, skipping hidden + ignored dirs. */
+export async function scanImages(root: string): Promise<ImageItem[]> {
   const out: ImageItem[] = [];
 
   async function walk(absDir: string, relDir: string): Promise<void> {
@@ -70,7 +70,7 @@ export async function scanImages(): Promise<ImageItem[]> {
     }
   }
 
-  await walk(IMAGES_DIR, '');
+  await walk(root, '');
   out.sort((a, b) => a.relPath.localeCompare(b.relPath));
   return out;
 }
