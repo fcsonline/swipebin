@@ -44,11 +44,12 @@ function Donut({ kept, deleted }: { kept: number; deleted: number }) {
 interface Props {
   stats: Stats | null;
   trash: TrashSummary;
-  flushed: TrashSummary | null;
+  /** Cumulative space permanently freed this session (after emptying trash). */
+  freed: TrashSummary | null;
   onEmptyTrash: () => void;
 }
 
-export function Summary({ stats, trash, flushed, onEmptyTrash }: Props) {
+export function Summary({ stats, trash, freed, onEmptyTrash }: Props) {
   const kept = stats?.kept ?? 0;
   const deleted = stats?.deleted ?? 0;
 
@@ -61,7 +62,7 @@ export function Summary({ stats, trash, flushed, onEmptyTrash }: Props) {
     >
       <CelebrateGraphic />
       <h2 className="summary__title">All caught up!</h2>
-      <p className="summary__subtitle">You've reviewed every image.</p>
+      <p className="summary__subtitle">You've reviewed everything.</p>
 
       <Donut kept={kept} deleted={deleted} />
 
@@ -76,34 +77,35 @@ export function Summary({ stats, trash, flushed, onEmptyTrash }: Props) {
         </div>
       </div>
 
-      <div className="trashcard">
-        {flushed ? (
-          <div className="trashcard__done">
-            <TrashIcon size={18} />
-            <span>
-              Emptied {flushed.count} {flushed.count === 1 ? 'file' : 'files'} · freed{' '}
-              {formatBytes(flushed.bytes)}
-            </span>
+      {freed ? (
+        <div className="freed" role="status">
+          <div className="freed__size">{formatBytes(freed.bytes)} freed</div>
+          <div className="freed__sub">
+            {freed.count} {freed.count === 1 ? 'file' : 'files'} deleted forever
           </div>
-        ) : trash.count === 0 ? (
-          <div className="trashcard__line">
-            <TrashIcon size={18} /> Trash is empty
-          </div>
-        ) : (
-          <>
+        </div>
+      ) : (
+        <div className="trashcard">
+          {trash.count === 0 ? (
             <div className="trashcard__line">
-              <TrashIcon size={18} />
-              <span>
-                <strong>{trash.count}</strong> {trash.count === 1 ? 'file' : 'files'} in trash ·{' '}
-                {formatBytes(trash.bytes)}
-              </span>
+              <TrashIcon size={18} /> Trash is empty
             </div>
-            <button className="btn-pill btn-pill--danger" onClick={onEmptyTrash}>
-              <TrashIcon size={16} /> Empty Trash
-            </button>
-          </>
-        )}
-      </div>
+          ) : (
+            <>
+              <div className="trashcard__line">
+                <TrashIcon size={18} />
+                <span>
+                  <strong>{trash.count}</strong> {trash.count === 1 ? 'file' : 'files'} in trash ·{' '}
+                  {formatBytes(trash.bytes)} to free
+                </span>
+              </div>
+              <button className="btn-pill btn-pill--danger" onClick={onEmptyTrash}>
+                <TrashIcon size={16} /> Empty Trash
+              </button>
+            </>
+          )}
+        </div>
+      )}
     </motion.div>
   );
 }

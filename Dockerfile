@@ -28,9 +28,10 @@ ENV NODE_ENV=production \
     APP_DIR=/data/app \
     PORT=3000
 
-# dcraw extracts RAW previews; libvips deps for sharp ship in its prebuilt binary.
+# dcraw extracts RAW previews; poppler-utils (pdftoppm) renders PDF previews;
+# libvips deps for sharp ship in its prebuilt binary.
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends dcraw \
+    && apt-get install -y --no-install-recommends dcraw poppler-utils \
     && rm -rf /var/lib/apt/lists/*
 
 # Production node_modules (incl. sharp built for this platform) and compiled output.

@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { APP_DIR, IMAGES_DIR, STATE_FILE, TRASH_DIRNAME } from './config.js';
-import type { Decision, DecisionAction, ImageItem, Stats, UndoLogEntry } from './types.js';
+import type { Decision, DecisionAction, FileItem, Stats, UndoLogEntry } from './types.js';
 
 const MAX_UNDO_LOG = 200;
 
@@ -113,7 +113,7 @@ async function moveToTrash(root: string, relPath: string): Promise<string> {
 export async function decide(
   folderId: string,
   root: string,
-  item: ImageItem,
+  item: FileItem,
   action: DecisionAction,
 ): Promise<Decision> {
   const b = bucket(folderId);
@@ -196,7 +196,7 @@ export async function flushTrash(folderId: string, root: string): Promise<TrashS
   return summary;
 }
 
-export function computeStats(folderId: string, items: ImageItem[]): Stats {
+export function computeStats(folderId: string, items: FileItem[]): Stats {
   const values = Object.values(bucket(folderId).decisions);
   const kept = values.filter((d) => d.action === 'keep').length;
   const deleted = values.filter((d) => d.action === 'delete').length;

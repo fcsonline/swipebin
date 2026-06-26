@@ -1,13 +1,20 @@
 export type DecisionAction = 'keep' | 'delete';
 
-export interface ImageItem {
+export type FileKind = 'image' | 'pdf' | 'other';
+
+export interface FileItem {
   id: string;
   relPath: string;
   name: string;
   ext: string;
+  kind: FileKind;
   isRaw: boolean;
   size: number;
   mtimeMs: number;
+}
+
+export function isPreviewable(item: FileItem): boolean {
+  return item.kind === 'image' || item.kind === 'pdf';
 }
 
 export interface Stats {
@@ -46,7 +53,7 @@ export function fetchFolders(): Promise<{ folders: FolderSummary[] }> {
   return jsonFetch('/api/folders');
 }
 
-export function fetchQueue(folderId: string, limit = 20): Promise<{ items: ImageItem[] }> {
+export function fetchQueue(folderId: string, limit = 20): Promise<{ items: FileItem[] }> {
   return jsonFetch(`${base(folderId)}/queue?limit=${limit}`);
 }
 
@@ -74,7 +81,7 @@ export interface UndoneEntry {
 
 export function postUndo(folderId: string): Promise<{
   ok: boolean;
-  restored?: ImageItem;
+  restored?: FileItem;
   undone?: UndoneEntry;
   stats: Stats;
 }> {

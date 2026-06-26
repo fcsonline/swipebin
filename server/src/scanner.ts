@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { IGNORED_DIRS } from './config.js';
-import type { ImageItem } from './types.js';
+import type { FileItem, FileKind } from './types.js';
 
 /** Browser-renderable formats handled directly by sharp/libvips. */
 export const STANDARD_EXTS = new Set([
@@ -26,13 +26,19 @@ export function isRawExt(ext: string): boolean {
   return RAW_EXTS.has(ext);
 }
 
-export function isSupportedExt(ext: string): boolean {
+export function isImageExt(ext: string): boolean {
   return STANDARD_EXTS.has(ext) || RAW_EXTS.has(ext);
 }
 
-/** Recursively scan `root` for supported images, skipping hidden + ignored dirs. */
-export async function scanImages(root: string): Promise<ImageItem[]> {
-  const out: ImageItem[] = [];
+function classify(ext: string): FileKind {
+  if (isImageExt(ext)) return 'image';
+  if (ext === 'pdf') return 'pdf';
+  return 'other';
+}
+
+/** Recursively scan `root` for ALL files, skipping hidden + ignored dirs. */
+export async function scanImages(root: string): Promise<FileItem[]> {
+  const out: FileItem[] = [];
 
   async function walk(absDir: string, relDir: string): Promise<void> {
     let entries;
@@ -50,7 +56,6 @@ export async function scanImages(root: string): Promise<ImageItem[]> {
         await walk(path.join(absDir, entry.name), childRel);
       } else if (entry.isFile()) {
         const ext = path.extname(entry.name).slice(1).toLowerCase();
-        if (!isSupportedExt(ext)) continue;
         let stat;
         try {
           stat = await fs.stat(path.join(absDir, entry.name));
@@ -62,6 +67,7 @@ export async function scanImages(root: string): Promise<ImageItem[]> {
           relPath: childRel,
           name: entry.name,
           ext,
+          kind: classify(ext),
           isRaw: isRawExt(ext),
           size: stat.size,
           mtimeMs: stat.mtimeMs,

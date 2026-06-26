@@ -11,7 +11,8 @@ foldersRouter.get('/folders', async (_req, res) => {
     catalog.listFolders().map(async (f) => {
       const stats = computeStats(f.id, f.items);
       const trash = await trashSummary(f.root);
-      return { id: f.id, name: f.name, coverImageId: f.items[0]?.id ?? null, ...stats, trash };
+      const cover = f.items.find((i) => i.kind === 'image' || i.kind === 'pdf');
+      return { id: f.id, name: f.name, coverImageId: cover?.id ?? null, ...stats, trash };
     }),
   );
   res.json({ folders: out });

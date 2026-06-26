@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { scanImages } from './scanner.js';
 import { FOLDERS_DIR, IGNORED_DIRS, IMAGES_DIR } from './config.js';
-import type { ImageItem } from './types.js';
+import type { FileItem } from './types.js';
 
 export interface Folder {
   /** base64url(name) — stable across restarts. */
@@ -13,9 +13,9 @@ export interface Folder {
 }
 
 export interface FolderCatalog extends Folder {
-  items: ImageItem[];
-  byId: Map<string, ImageItem>;
-  byRelPath: Map<string, ImageItem>;
+  items: FileItem[];
+  byId: Map<string, FileItem>;
+  byRelPath: Map<string, FileItem>;
 }
 
 export function encodeFolderId(name: string): string {

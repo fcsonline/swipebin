@@ -1,13 +1,17 @@
 export type DecisionAction = 'keep' | 'delete';
 
-export interface ImageItem {
+/** image → sharp/dcraw preview, pdf → first-page preview, other → placeholder. */
+export type FileKind = 'image' | 'pdf' | 'other';
+
+export interface FileItem {
   /** base64url(relPath) — stable across restarts, decodes back to the path. */
   id: string;
-  /** POSIX-style path relative to IMAGES_DIR. */
+  /** POSIX-style path relative to the folder root. */
   relPath: string;
   name: string;
   /** lowercased extension, no leading dot. */
   ext: string;
+  kind: FileKind;
   isRaw: boolean;
   size: number;
   mtimeMs: number;

@@ -3,9 +3,9 @@
 A Tinder-style photo culling app. Mount one or more folders of pictures, then **swipe right to keep** and **swipe left to delete** — one image at a time, on your phone or desktop.
 
 - **Multiple folders** — mount several folders and pick which one to clean from a folder grid. Each shows its own progress, so the picker doubles as a **resume hub**: stop anytime, come back, continue where you left off.
-- **Reversible deletes** — "deleted" images are moved into a `.trash/` folder inside that folder, never destroyed. An **Undo** button (or the `Z` key) restores the last one.
-- **Reads everything** — JPEG, PNG, WebP, GIF, TIFF, HEIC/HEIF, AVIF **and RAW** (CR2, CR3, NEF, ARW, RAF, ORF, RW2, DNG, PEF, SRW, and more). RAW files are previewed by extracting their embedded JPEG with `dcraw`, so it's fast.
-- **Remembers your decisions** — reviewed images don't come back, even after a restart.
+- **Reversible deletes** — "deleted" files are moved into a `.trash/` folder inside that folder, never destroyed. An **Undo** button (or the `Z` key) restores the last one. When you empty the trash at the end, you're shown the **total space freed**.
+- **Any file type** — images (JPEG, PNG, WebP, GIF, TIFF, HEIC/HEIF, AVIF **and RAW** like CR2, NEF, ARW, DNG…) and **PDFs** get a real preview; everything else (docs, archives, binaries…) shows a typed placeholder. The **file size is always shown**, and you can **tap an image to zoom** it fullscreen.
+- **Remembers your decisions** — reviewed files don't come back, even after a restart.
 - **Runs anywhere** — one Docker container.
 
 ## Screenshots
@@ -124,8 +124,8 @@ data volume   ──► /data/app                (state.json + preview cache)
 ```
 
 - **Backend** — Node + Express (TypeScript). Discovers each folder under `FOLDERS_DIR`, scans it on demand, and serves a **folder-scoped** API (`/api/folders/:id/…`). Decisions live in an atomic JSON store namespaced per folder; previews are generated on demand and cached.
-- **Frontend** — React + Vite (TypeScript). A hash-routed folder **picker** (`#/`) and **swipe session** (`#/f/<id>`), with `framer-motion` drag gestures for the deck. A single mounted folder skips the picker.
-- **RAW** — `dcraw -e` extracts the embedded preview (fast); falls back to a full `dcraw` demosaic only when no embedded preview exists. The result is piped through `sharp` for resizing and orientation.
+- **Frontend** — React + Vite (TypeScript). A hash-routed folder **picker** (`#/`) and **swipe session** (`#/f/<id>`), with `framer-motion` drag gestures for the deck and a fullscreen lightbox for image zoom. A single mounted folder skips the picker.
+- **Previews** — images via `sharp`; **RAW** via `dcraw -e` (embedded JPEG, fast; falls back to a full demosaic); **PDFs** via poppler's `pdftoppm` (first page). Non-previewable files get a typed placeholder. Everything is resized through `sharp` and cached.
 
 ## API
 

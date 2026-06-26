@@ -36,6 +36,26 @@ export function TrashIcon({ size = 20 }: IconProps) {
   );
 }
 
+/** Generic file/document icon for non-previewable files. */
+export function FileIcon({ size = 72 }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />
+      <path d="M14 3v5h5" />
+    </svg>
+  );
+}
+
+/** Magnifier with a plus — tap-to-zoom affordance. */
+export function ZoomIcon({ size = 18 }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <circle cx="11" cy="11" r="7" />
+      <path d="M21 21l-4.3-4.3M11 8v6M8 11h6" />
+    </svg>
+  );
+}
+
 /** App logo mark: gradient squircle with a bin + swipe motion lines. */
 export function Logo({ size = 30 }: IconProps) {
   return (

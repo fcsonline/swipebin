@@ -7,8 +7,9 @@ import {
   formatBytes,
   postDecision,
   postUndo,
+  previewUrl,
   type DecisionAction,
-  type ImageItem,
+  type FileItem,
   type Stats,
   type TrashSummary,
 } from '../api.js';
@@ -17,6 +18,7 @@ import { Controls } from './Controls.js';
 import { StatsBar } from './StatsBar.js';
 import { Summary } from './Summary.js';
 import { ConfirmDialog } from './ConfirmDialog.js';
+import { Lightbox } from './Lightbox.js';
 import { Logo, TrashIcon } from './icons.js';
 
 const FETCH_BATCH = 24;
@@ -32,7 +34,7 @@ interface Props {
 }
 
 export function SwipeSession({ folderId, folderName, showBack, onBack }: Props) {
-  const [cards, setCards] = useState<ImageItem[]>([]);
+  const [cards, setCards] = useState<FileItem[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
   const [command, setCommand] = useState<SwipeCommand | null>(null);
   const [canUndo, setCanUndo] = useState(false);
@@ -42,8 +44,9 @@ export function SwipeSession({ folderId, folderName, showBack, onBack }: Props) 
   const [trash, setTrash] = useState<TrashSummary>({ count: 0, bytes: 0 });
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [flushing, setFlushing] = useState(false);
-  const [flushed, setFlushed] = useState<TrashSummary | null>(null);
+  const [freed, setFreed] = useState<TrashSummary | null>(null);
   const [toast, setToast] = useState<string | null>(null);
+  const [zoomItem, setZoomItem] = useState<FileItem | null>(null);
 
   const seen = useRef<Set<string>>(new Set());
   const nonce = useRef(0);
@@ -85,7 +88,7 @@ export function SwipeSession({ folderId, folderName, showBack, onBack }: Props) 
   }, [folderId]);
 
   const handleDecide = useCallback(
-    (item: ImageItem, action: DecisionAction) => {
+    (item: FileItem, action: DecisionAction) => {
       setCards((prev) => prev.filter((c) => c.id !== item.id));
       setCommand(null);
       setCanUndo(true);
@@ -135,7 +138,10 @@ export function SwipeSession({ folderId, folderName, showBack, onBack }: Props) 
       const res = await flushTrash(folderId);
       setStats(res.stats);
       setTrash({ count: 0, bytes: 0 });
-      setFlushed({ count: res.count, bytes: res.bytes });
+      setFreed((prev) => ({
+        count: (prev?.count ?? 0) + res.count,
+        bytes: (prev?.bytes ?? 0) + res.bytes,
+      }));
       setToast(
         res.count > 0
           ? `Trash emptied — freed ${formatBytes(res.bytes)}`
@@ -157,7 +163,7 @@ export function SwipeSession({ folderId, folderName, showBack, onBack }: Props) 
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      if (e.repeat || confirmOpen) return;
+      if (e.repeat || confirmOpen || zoomItem) return;
       if (e.key === 'ArrowRight') triggerSwipe('keep');
       else if (e.key === 'ArrowLeft') triggerSwipe('delete');
       else if (e.key === 'z' || e.key === 'Z' || e.key === 'Backspace') void handleUndo();
@@ -165,7 +171,7 @@ export function SwipeSession({ folderId, folderName, showBack, onBack }: Props) 
     }
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [triggerSwipe, handleUndo, confirmOpen, showBack, onBack]);
+  }, [triggerSwipe, handleUndo, confirmOpen, zoomItem, showBack, onBack]);
 
   const deck = cards.slice(0, VISIBLE_STACK);
   const empty = !loading && cards.length === 0;
@@ -210,7 +216,7 @@ export function SwipeSession({ folderId, folderName, showBack, onBack }: Props) 
           <Summary
             stats={stats}
             trash={trash}
-            flushed={flushed}
+            freed={freed}
             onEmptyTrash={() => setConfirmOpen(true)}
           />
         )}
@@ -227,6 +233,7 @@ export function SwipeSession({ folderId, folderName, showBack, onBack }: Props) 
               stackIndex={i}
               command={i === 0 ? command : null}
               onDecide={handleDecide}
+              onZoom={setZoomItem}
             />
           ))}
       </main>
@@ -262,6 +269,14 @@ export function SwipeSession({ folderId, folderName, showBack, onBack }: Props) 
       />
 
       {toast && <div className="toast">{toast}</div>}
+
+      {zoomItem && (
+        <Lightbox
+          src={previewUrl(folderId, zoomItem.id, 2048)}
+          alt={zoomItem.name}
+          onClose={() => setZoomItem(null)}
+        />
+      )}
     </div>
   );
 }
