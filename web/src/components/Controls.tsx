@@ -1,3 +1,5 @@
+import { CrossIcon, HeartIcon, UndoIcon } from './icons.js';
+
 interface Props {
   onKeep: () => void;
   onDelete: () => void;
@@ -16,7 +18,7 @@ export function Controls({ onKeep, onDelete, onUndo, canUndo, disabled }: Props)
         aria-label="Delete (move to trash)"
         title="Delete — ←"
       >
-        ✕
+        <CrossIcon />
       </button>
       <button
         className="btn btn--undo"
@@ -25,7 +27,7 @@ export function Controls({ onKeep, onDelete, onUndo, canUndo, disabled }: Props)
         aria-label="Undo last decision"
         title="Undo — Z"
       >
-        ↺
+        <UndoIcon />
       </button>
       <button
         className="btn btn--keep"
@@ -34,7 +36,7 @@ export function Controls({ onKeep, onDelete, onUndo, canUndo, disabled }: Props)
         aria-label="Keep"
         title="Keep — →"
       >
-        ♥
+        <HeartIcon />
       </button>
     </div>
   );

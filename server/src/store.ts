@@ -113,6 +113,53 @@ export async function undo(): Promise<UndoLogEntry | null> {
   return entry;
 }
 
+export interface TrashSummary {
+  count: number;
+  bytes: number;
+}
+
+/** Count and total size of everything currently in .trash. */
+export async function trashSummary(): Promise<TrashSummary> {
+  const trashDir = path.join(IMAGES_DIR, TRASH_DIRNAME);
+  let count = 0;
+  let bytes = 0;
+  async function walk(dir: string): Promise<void> {
+    let entries;
+    try {
+      entries = await fs.readdir(dir, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const entry of entries) {
+      const p = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        await walk(p);
+      } else if (entry.isFile()) {
+        try {
+          const s = await fs.stat(p);
+          count += 1;
+          bytes += s.size;
+        } catch {
+          // ignore unreadable entries
+        }
+      }
+    }
+  }
+  await walk(trashDir);
+  return { count, bytes };
+}
+
+/** Permanently delete everything in .trash. Deleted files can no longer be undone. */
+export async function flushTrash(): Promise<TrashSummary> {
+  const trashDir = path.join(IMAGES_DIR, TRASH_DIRNAME);
+  const summary = await trashSummary();
+  await fs.rm(trashDir, { recursive: true, force: true });
+  // The files backing 'delete' decisions are gone now — drop those from the undo history.
+  state.undoLog = state.undoLog.filter((e) => e.action !== 'delete');
+  await persist();
+  return summary;
+}
+
 export function computeStats(items: ImageItem[]): Stats {
   const values = Object.values(state.decisions);
   const kept = values.filter((d) => d.action === 'keep').length;

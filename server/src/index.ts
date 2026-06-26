@@ -10,6 +10,7 @@ import { queueRouter } from './routes/queue.js';
 import { previewRouter } from './routes/preview.js';
 import { decisionRouter } from './routes/decision.js';
 import { statsRouter } from './routes/stats.js';
+import { trashRouter } from './routes/trash.js';
 import type { Stats } from './types.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -51,6 +52,7 @@ async function main(): Promise<void> {
   api.use(previewRouter);
   api.use(decisionRouter);
   api.use(statsRouter);
+  api.use(trashRouter);
   app.use('/api', api);
   // Unmatched API routes return JSON, not the SPA shell.
   app.use('/api', (_req, res) => res.status(404).json({ error: 'not found' }));

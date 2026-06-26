@@ -11,6 +11,7 @@ import {
 import { SwipeCard, type SwipeCommand } from './components/SwipeCard.js';
 import { Controls } from './components/Controls.js';
 import { StatsBar } from './components/StatsBar.js';
+import { Summary } from './components/Summary.js';
 
 const FETCH_BATCH = 24;
 const REFILL_BELOW = 6;
@@ -116,7 +117,9 @@ export function App() {
   return (
     <div className="app">
       <header className="app__header">
-        <h1 className="app__title">🗑️ SwipeBin</h1>
+        <h1 className="app__title">
+          <span className="app__title-emoji">🗑️</span>
+        </h1>
         <StatsBar stats={stats} />
       </header>
 
@@ -124,15 +127,7 @@ export function App() {
         {loading && <div className="deck__msg">Loading…</div>}
         {error && <div className="deck__msg deck__msg--error">{error}</div>}
 
-        {empty && !error && (
-          <div className="deck__msg deck__empty">
-            <div className="deck__empty-emoji">🎉</div>
-            <p>All caught up!</p>
-            <small>
-              {stats ? `${stats.kept} kept · ${stats.deleted} sent to trash` : ''}
-            </small>
-          </div>
-        )}
+        {empty && !error && <Summary stats={stats} onStats={setStats} />}
 
         {/* Render back-to-front so the top card paints last. */}
         {deck
@@ -150,16 +145,18 @@ export function App() {
           ))}
       </main>
 
-      <footer className="app__footer">
-        <Controls
-          onKeep={() => triggerSwipe('keep')}
-          onDelete={() => triggerSwipe('delete')}
-          onUndo={() => void handleUndo()}
-          canUndo={canUndo}
-          disabled={empty || loading || !!error}
-        />
-        <p className="app__hint">Swipe or use ← delete · → keep · Z undo</p>
-      </footer>
+      {!empty && (
+        <footer className="app__footer">
+          <Controls
+            onKeep={() => triggerSwipe('keep')}
+            onDelete={() => triggerSwipe('delete')}
+            onUndo={() => void handleUndo()}
+            canUndo={canUndo}
+            disabled={loading || !!error}
+          />
+          <p className="app__hint">Swipe · or ← delete · → keep · Z undo</p>
+        </footer>
+      )}
     </div>
   );
 }

@@ -89,6 +89,8 @@ export function SwipeCard({ item, isTop, stackIndex, command, onDecide }: Props)
 
       {isTop && (
         <>
+          <motion.div className="card__tint card__tint--keep" style={{ opacity: keepOpacity }} />
+          <motion.div className="card__tint card__tint--delete" style={{ opacity: deleteOpacity }} />
           <motion.div className="card__badge card__badge--keep" style={{ opacity: keepOpacity }}>
             KEEP
           </motion.div>
