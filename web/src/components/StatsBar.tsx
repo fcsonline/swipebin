@@ -1,4 +1,5 @@
 import type { Stats } from '../api.js';
+import { CrossIcon, HeartIcon } from './icons.js';
 
 export function StatsBar({ stats }: { stats: Stats | null }) {
   if (!stats) return <div className="statsbar statsbar--loading" />;
@@ -10,8 +11,12 @@ export function StatsBar({ stats }: { stats: Stats | null }) {
       </div>
       <div className="statsbar__nums">
         <span>{stats.remaining} left</span>
-        <span className="statsbar__kept">♥ {stats.kept}</span>
-        <span className="statsbar__deleted">✕ {stats.deleted}</span>
+        <span className="statsbar__kept">
+          <HeartIcon size={13} /> {stats.kept}
+        </span>
+        <span className="statsbar__deleted">
+          <CrossIcon size={13} /> {stats.deleted}
+        </span>
       </div>
     </div>
   );

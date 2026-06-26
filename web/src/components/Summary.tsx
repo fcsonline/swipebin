@@ -1,7 +1,6 @@
-import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { fetchTrash, flushTrash, formatBytes, type Stats, type TrashSummary } from '../api.js';
-import { TrashIcon } from './icons.js';
+import { formatBytes, type Stats, type TrashSummary } from '../api.js';
+import { CelebrateGraphic, TrashIcon } from './icons.js';
 
 function Donut({ kept, deleted }: { kept: number; deleted: number }) {
   const total = kept + deleted;
@@ -42,31 +41,14 @@ function Donut({ kept, deleted }: { kept: number; deleted: number }) {
   );
 }
 
-export function Summary({ stats, onStats }: { stats: Stats | null; onStats: (s: Stats) => void }) {
-  const [trash, setTrash] = useState<TrashSummary | null>(null);
-  const [confirming, setConfirming] = useState(false);
-  const [flushing, setFlushing] = useState(false);
-  const [flushed, setFlushed] = useState<TrashSummary | null>(null);
+interface Props {
+  stats: Stats | null;
+  trash: TrashSummary;
+  flushed: TrashSummary | null;
+  onEmptyTrash: () => void;
+}
 
-  useEffect(() => {
-    fetchTrash().then(setTrash).catch(() => setTrash({ count: 0, bytes: 0 }));
-  }, []);
-
-  async function doFlush() {
-    setFlushing(true);
-    try {
-      const res = await flushTrash();
-      setFlushed({ count: res.count, bytes: res.bytes });
-      setTrash({ count: 0, bytes: 0 });
-      onStats(res.stats);
-    } catch {
-      /* leave UI as-is on error */
-    } finally {
-      setFlushing(false);
-      setConfirming(false);
-    }
-  }
-
+export function Summary({ stats, trash, flushed, onEmptyTrash }: Props) {
   const kept = stats?.kept ?? 0;
   const deleted = stats?.deleted ?? 0;
 
@@ -77,7 +59,7 @@ export function Summary({ stats, onStats }: { stats: Stats | null; onStats: (s: 
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ type: 'spring', stiffness: 220, damping: 22 }}
     >
-      <div className="summary__emoji">🎉</div>
+      <CelebrateGraphic />
       <h2 className="summary__title">All caught up!</h2>
       <p className="summary__subtitle">You've reviewed every image.</p>
 
@@ -103,8 +85,6 @@ export function Summary({ stats, onStats }: { stats: Stats | null; onStats: (s: 
               {formatBytes(flushed.bytes)}
             </span>
           </div>
-        ) : !trash ? (
-          <div className="trashcard__line">Checking trash…</div>
         ) : trash.count === 0 ? (
           <div className="trashcard__line">
             <TrashIcon size={18} /> Trash is empty
@@ -118,26 +98,9 @@ export function Summary({ stats, onStats }: { stats: Stats | null; onStats: (s: 
                 {formatBytes(trash.bytes)}
               </span>
             </div>
-            {confirming ? (
-              <div className="trashcard__confirm">
-                <p className="trashcard__warn">
-                  Permanently delete {trash.count} {trash.count === 1 ? 'file' : 'files'}? This
-                  can't be undone.
-                </p>
-                <div className="trashcard__actions">
-                  <button className="btn-pill btn-pill--ghost" onClick={() => setConfirming(false)} disabled={flushing}>
-                    Cancel
-                  </button>
-                  <button className="btn-pill btn-pill--danger" onClick={doFlush} disabled={flushing}>
-                    {flushing ? 'Emptying…' : 'Yes, delete forever'}
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <button className="btn-pill btn-pill--danger" onClick={() => setConfirming(true)}>
-                <TrashIcon size={16} /> Empty Trash
-              </button>
-            )}
+            <button className="btn-pill btn-pill--danger" onClick={onEmptyTrash}>
+              <TrashIcon size={16} /> Empty Trash
+            </button>
           </>
         )}
       </div>

@@ -35,3 +35,53 @@ export function TrashIcon({ size = 20 }: IconProps) {
     </svg>
   );
 }
+
+/** App logo mark: gradient squircle with a bin + swipe motion lines. */
+export function Logo({ size = 30 }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 48 48" aria-hidden>
+      <defs>
+        <linearGradient id="sbLogoGrad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#6e8bff" />
+          <stop offset="0.55" stopColor="#9b6bff" />
+          <stop offset="1" stopColor="#18d27a" />
+        </linearGradient>
+      </defs>
+      <rect x="2" y="2" width="44" height="44" rx="13" fill="url(#sbLogoGrad)" />
+      <g stroke="#fff" strokeWidth="2.6" fill="none" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M16 18.5h17" />
+        <path d="M21 18.5v-2.2a1.6 1.6 0 0 1 1.6-1.6h3.8a1.6 1.6 0 0 1 1.6 1.6v2.2" />
+        <path d="M18.2 18.5l1.2 13.2a2 2 0 0 0 2 1.8h6.2a2 2 0 0 0 2-1.8l1.2-13.2" />
+      </g>
+      <g stroke="#fff" strokeWidth="2.2" strokeLinecap="round" opacity="0.85">
+        <path d="M9 22h3.5" />
+        <path d="M8 27h2.7" />
+      </g>
+    </svg>
+  );
+}
+
+/** Celebration badge for the end screen: gradient check with confetti. */
+export function CelebrateGraphic({ size = 104 }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 120 120" aria-hidden className="celebrate">
+      <defs>
+        <linearGradient id="sbCheckGrad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#6e8bff" />
+          <stop offset="1" stopColor="#18d27a" />
+        </linearGradient>
+      </defs>
+      <g className="celebrate__confetti">
+        <circle cx="22" cy="34" r="4" fill="#9b6bff" />
+        <rect x="92" y="26" width="7" height="7" rx="1.5" fill="#18d27a" transform="rotate(20 95 29)" />
+        <circle cx="100" cy="70" r="3.5" fill="#ff4d6d" />
+        <rect x="16" y="74" width="6" height="6" rx="1.5" fill="#ffb020" transform="rotate(-15 19 77)" />
+        <circle cx="34" cy="16" r="3" fill="#18d27a" />
+        <circle cx="86" cy="96" r="3" fill="#6e8bff" />
+        <rect x="58" y="10" width="5" height="5" rx="1.2" fill="#ff7a45" transform="rotate(30 60 12)" />
+      </g>
+      <circle cx="60" cy="60" r="33" fill="url(#sbCheckGrad)" />
+      <path d="M46 61l10 10 19-22" stroke="#fff" strokeWidth="6.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}

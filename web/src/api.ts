@@ -47,7 +47,18 @@ export function postDecision(
   });
 }
 
-export function postUndo(): Promise<{ ok: boolean; restored?: ImageItem; stats: Stats }> {
+export interface UndoneEntry {
+  relPath: string;
+  action: DecisionAction;
+  at: string;
+}
+
+export function postUndo(): Promise<{
+  ok: boolean;
+  restored?: ImageItem;
+  undone?: UndoneEntry;
+  stats: Stats;
+}> {
   return jsonFetch('/api/undo', { method: 'POST' });
 }
 
