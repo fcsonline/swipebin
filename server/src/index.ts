@@ -3,7 +3,8 @@ import os from 'node:os';
 import path from 'node:path';
 import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { APP_DIR, IMAGES_DIR, PORT, WEB_DIR } from './config.js';
+import QRCode from 'qrcode';
+import { APP_DIR, IMAGES_DIR, PORT, PUBLIC_HOST, PUBLIC_URL, WEB_DIR } from './config.js';
 import * as catalog from './catalog.js';
 import { computeStats, loadState } from './store.js';
 import { queueRouter } from './routes/queue.js';
@@ -25,13 +26,31 @@ function lanAddress(): string | undefined {
   return undefined;
 }
 
-function printBanner(stats: Stats): void {
-  const lan = lanAddress();
+/** The address phones should open. PUBLIC_URL/PUBLIC_HOST override the detected IP. */
+function networkUrl(): string {
+  if (PUBLIC_URL) return PUBLIC_URL;
+  const host = PUBLIC_HOST || lanAddress();
+  return host ? `http://${host}:${PORT}` : `http://localhost:${PORT}`;
+}
+
+async function printBanner(stats: Stats): Promise<void> {
+  const url = networkUrl();
+  const inDocker = existsSync('/.dockerenv');
   console.log('');
   console.log(`  🗑️  SwipeBin ready — ${stats.total.toLocaleString()} images found, ${stats.reviewed} reviewed`);
   console.log(`     ➜ Local:   http://localhost:${PORT}`);
-  if (lan) console.log(`     ➜ Network: http://${lan}:${PORT}   (open on your phone)`);
+  console.log(`     ➜ Network: ${url}`);
+  if (inDocker && !PUBLIC_URL && !PUBLIC_HOST) {
+    console.log('       (set PUBLIC_HOST=<your LAN IP> for a phone-reachable address)');
+  }
   console.log('');
+  try {
+    const qr = await QRCode.toString(url, { type: 'terminal', small: true });
+    console.log('  📱 Scan to open on your phone:');
+    console.log(qr.replace(/^/gm, '  '));
+  } catch {
+    // QR rendering is best-effort; the URL above is always printed.
+  }
 }
 
 async function main(): Promise<void> {
@@ -67,7 +86,7 @@ async function main(): Promise<void> {
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`  Images:  ${IMAGES_DIR}`);
     console.log(`  State:   ${APP_DIR}`);
-    printBanner(computeStats(catalog.all()));
+    void printBanner(computeStats(catalog.all()));
   });
 }
 

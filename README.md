@@ -22,15 +22,30 @@ A Tinder-style photo culling app. Mount a folder of pictures, then **swipe right
    docker compose up --build
    ```
 
-3. The container prints a banner with the URL — open it:
+3. The container prints a banner with the URL **and a QR code** — open it:
 
    ```
    SwipeBin ready — 1,284 images found, 0 reviewed
      ➜ Local:   http://localhost:3000
-     ➜ Network: http://192.168.1.42:3000   (open on your phone)
+     ➜ Network: http://192.168.1.42:3000
+
+   📱 Scan to open on your phone:
+     █▀▀▀▀▀█ ▀▄█ ▄ █▀▀▀▀▀█
+     █ ███ █ ▀█▀▀▄ █ ███ █
+     █ ▀▀▀ █ █▀ ▀▀ █ ▀▀▀ █
+     ▀▀▀▀▀▀▀ █ ▀ █ ▀▀▀▀▀▀▀
+     ... (full QR) ...
    ```
 
-   Open `http://localhost:3000` on this machine, or the `Network` URL from your phone on the same Wi-Fi, and start swiping.
+   Open `http://localhost:3000` on this machine, or **scan the QR code** (or open the `Network` URL) from your phone on the same Wi-Fi, and start swiping.
+
+   > **Phone access:** inside Docker the auto-detected IP is the *container's*, which phones can't reach. For a scannable address, pass your computer's LAN IP:
+   >
+   > ```bash
+   > PUBLIC_HOST=192.168.1.42 docker compose up --build
+   > ```
+   >
+   > (find it with `ipconfig getifaddr en0` on macOS, or `hostname -I` on Linux). The QR and Network URL then point at the host.
 
 ### What happens on swipe
 
@@ -52,6 +67,8 @@ Set via environment variables (see `docker-compose.yml`):
 | `APP_DIR` | `/data/app` | Where `state.json` and the preview cache live |
 | `PORT` | `3000` | HTTP port |
 | `PREVIEW_WIDTH` | `1080` | Max width (px) of generated previews |
+| `PUBLIC_HOST` | _(auto)_ | Host/IP used for the Network URL + QR code (set to your LAN IP in Docker) |
+| `PUBLIC_URL` | _(auto)_ | Full external URL for the Network line + QR (overrides `PUBLIC_HOST`) |
 
 State and the preview cache persist in the `swipebin-data` named volume, so your progress and generated previews survive restarts.
 

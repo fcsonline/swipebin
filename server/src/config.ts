@@ -18,6 +18,14 @@ export const STATE_FILE = path.join(APP_DIR, 'state.json');
 /** Built frontend to serve. Defaults to ../../web/dist relative to this file. */
 export const WEB_DIR = process.env.WEB_DIR ?? '';
 
+/**
+ * Externally-reachable address shown in the banner + QR code (so phones can connect).
+ * Inside Docker the auto-detected IP is the container's, not the host's — set one of
+ * these to your host's LAN IP/URL. PUBLIC_URL wins; otherwise PUBLIC_HOST + PORT.
+ */
+export const PUBLIC_URL = process.env.PUBLIC_URL ?? '';
+export const PUBLIC_HOST = process.env.PUBLIC_HOST ?? '';
+
 /** Deleted images are moved here, inside IMAGES_DIR so the move is an atomic rename. */
 export const TRASH_DIRNAME = '.trash';
 

@@ -15,6 +15,10 @@ services:
       APP_DIR: /data/app
       PORT: "3000"
       PREVIEW_WIDTH: "1080"
+      # For a phone-scannable QR/Network URL, set your computer's LAN IP, e.g.:
+      #   PUBLIC_HOST=192.168.1.42 docker compose up
+      PUBLIC_HOST: ${PUBLIC_HOST:-}
+      PUBLIC_URL: ${PUBLIC_URL:-}
     restart: unless-stopped
 
 volumes:
