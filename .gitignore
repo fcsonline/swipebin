@@ -1,0 +1,25 @@
+# dependencies
+node_modules/
+
+# build output
+dist/
+server/dist/
+web/dist/
+
+# the user's images live here in local dev — never commit them
+photos/
+
+# runtime state / preview cache (local dev)
+data/
+
+# logs and env
+*.log
+*.local
+.env
+.env.*
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

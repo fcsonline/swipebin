@@ -1,0 +1,21 @@
+services:
+  swipebin:
+    build: .
+    image: swipebin
+    container_name: swipebin
+    ports:
+      - "3000:3000"
+    volumes:
+      # 👇 Mount the folder of pictures you want to triage here.
+      - ./photos:/data/images
+      # State (decisions) + generated preview cache, persisted across restarts.
+      - swipebin-data:/data/app
+    environment:
+      IMAGES_DIR: /data/images
+      APP_DIR: /data/app
+      PORT: "3000"
+      PREVIEW_WIDTH: "1080"
+    restart: unless-stopped
+
+volumes:
+  swipebin-data:
