@@ -7,6 +7,20 @@ A Tinder-style photo culling app. Mount a folder of pictures, then **swipe right
 - **Remembers your decisions** — reviewed images don't come back, even after a restart.
 - **Runs anywhere** — one Docker container, one mounted volume.
 
+## Screenshots
+
+<p align="center">
+  <img src="docs/screenshot-swipe.png" width="250" alt="Swipe a photo left to delete or right to keep" />
+  <img src="docs/screenshot-done.png" width="250" alt="End screen with kept/deleted stats" />
+  <img src="docs/screenshot-trash.png" width="250" alt="Empty trash confirmation dialog" />
+</p>
+
+On startup the container prints the URL **and a QR code** — scan it to open the deck on your phone:
+
+<p align="center">
+  <img src="docs/screenshot-terminal.png" width="600" alt="Startup banner showing the URL and a scannable QR code" />
+</p>
+
 ## Quick start (Docker)
 
 1. Put the photos you want to triage in a `./photos` folder next to `docker-compose.yml` (subfolders are scanned recursively):
