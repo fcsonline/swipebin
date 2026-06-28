@@ -118,12 +118,45 @@ body {
   }
 }
 
+/* Icon-only fullscreen toggle in the picker header */
+.fullscreen-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex: none;
+  border-radius: 11px;
+  border: 1px solid var(--line);
+  background: var(--bg-elev);
+  color: var(--muted);
+  cursor: pointer;
+  transition: transform 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+
+.fullscreen-btn:hover {
+  color: var(--fg);
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+
+.fullscreen-btn:active {
+  transform: scale(0.94);
+}
+
 /* Session header: back button + folder name */
 .app__bar-left {
   display: flex;
   align-items: center;
   gap: 10px;
   min-width: 0;
+}
+
+.app__bar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
 }
 
 .back-btn {

@@ -1,5 +1,6 @@
 import { type FolderSummary } from '../api.js';
-import { FolderIcon, Logo } from './icons.js';
+import { useFullscreen } from '../useFullscreen.js';
+import { CompressIcon, ExpandIcon, FolderIcon, Logo } from './icons.js';
 
 interface Props {
   folders: FolderSummary[];
@@ -35,6 +36,8 @@ function FolderCard({ folder, onPick }: { folder: FolderSummary; onPick: (id: st
 }
 
 export function FolderPicker({ folders, onPick }: Props) {
+  const { isFullscreen, toggle, supported } = useFullscreen();
+
   return (
     <div className="app picker">
       <header className="app__header">
@@ -42,6 +45,17 @@ export function FolderPicker({ folders, onPick }: Props) {
           <h1 className="app__title">
             <Logo size={30} />
           </h1>
+          {supported && (
+            <button
+              type="button"
+              className="fullscreen-btn"
+              onClick={() => void toggle()}
+              aria-label={isFullscreen ? 'Exit full screen' : 'Enter full screen'}
+              title={isFullscreen ? 'Exit full screen' : 'Full screen'}
+            >
+              {isFullscreen ? <CompressIcon size={18} /> : <ExpandIcon size={18} />}
+            </button>
+          )}
         </div>
         <p className="picker__subtitle">Choose a folder to clean up</p>
       </header>

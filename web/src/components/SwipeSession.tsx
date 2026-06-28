@@ -21,7 +21,8 @@ import { StatsBar } from './StatsBar.js';
 import { Summary } from './Summary.js';
 import { ConfirmDialog } from './ConfirmDialog.js';
 import { Lightbox } from './Lightbox.js';
-import { Logo, TrashIcon } from './icons.js';
+import { CompressIcon, ExpandIcon, Logo, TrashIcon } from './icons.js';
+import { useFullscreen } from '../useFullscreen.js';
 
 const FETCH_BATCH = 24;
 const REFILL_BELOW = 6;
@@ -53,6 +54,8 @@ export function SwipeSession({ folderId, folderName, showBack, onBack }: Props) 
   const seen = useRef<Set<string>>(new Set());
   const nonce = useRef(0);
   const fetching = useRef(false);
+
+  const fullscreen = useFullscreen();
 
   const refill = useCallback(async () => {
     if (fetching.current) return;
@@ -244,18 +247,31 @@ export function SwipeSession({ folderId, folderName, showBack, onBack }: Props) 
             )}
             {showBack && <span className="session__folder">{folderName}</span>}
           </div>
-          {trash.count > 0 && (
-            <button
-              className="trash-skip"
-              onClick={() => setConfirmOpen(true)}
-              title="Empty trash now"
-              aria-label={`Empty trash (${trash.count} files)`}
-            >
-              <TrashIcon size={17} />
-              <span className="trash-skip__label">Empty trash</span>
-              <span className="trash-skip__count">{trash.count}</span>
-            </button>
-          )}
+          <div className="app__bar-right">
+            {trash.count > 0 && (
+              <button
+                className="trash-skip"
+                onClick={() => setConfirmOpen(true)}
+                title="Empty trash now"
+                aria-label={`Empty trash (${trash.count} files)`}
+              >
+                <TrashIcon size={17} />
+                <span className="trash-skip__label">Empty trash</span>
+                <span className="trash-skip__count">{trash.count}</span>
+              </button>
+            )}
+            {fullscreen.supported && (
+              <button
+                type="button"
+                className="fullscreen-btn"
+                onClick={() => void fullscreen.toggle()}
+                aria-label={fullscreen.isFullscreen ? 'Exit full screen' : 'Enter full screen'}
+                title={fullscreen.isFullscreen ? 'Exit full screen' : 'Full screen'}
+              >
+                {fullscreen.isFullscreen ? <CompressIcon size={18} /> : <ExpandIcon size={18} />}
+              </button>
+            )}
+          </div>
         </div>
         <StatsBar stats={stats} />
       </header>
