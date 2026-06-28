@@ -1,5 +1,5 @@
-import { previewUrl, type FolderSummary } from '../api.js';
-import { Logo } from './icons.js';
+import { type FolderSummary } from '../api.js';
+import { FolderIcon, Logo } from './icons.js';
 
 interface Props {
   folders: FolderSummary[];
@@ -10,31 +10,25 @@ function FolderCard({ folder, onPick }: { folder: FolderSummary; onPick: (id: st
   const { total, reviewed, remaining } = folder;
   const pct = total > 0 ? (reviewed / total) * 100 : 0;
   const done = total > 0 && remaining === 0;
-  const meta = total === 0 ? 'No images' : remaining > 0 ? `${remaining} left` : 'All done';
+  const meta = total === 0 ? 'No files' : remaining > 0 ? `${remaining} left` : 'All done';
 
   return (
     <button className="folder-card" onClick={() => onPick(folder.id)}>
-      <div className="folder-card__cover">
-        {folder.coverImageId ? (
-          <img src={previewUrl(folder.id, folder.coverImageId, 500)} alt="" draggable={false} />
-        ) : (
-          <div className="folder-card__placeholder">
-            <Logo size={40} />
-          </div>
-        )}
+      <div className="folder-card__head">
+        <span className="folder-card__icon">
+          <FolderIcon size={32} />
+        </span>
         {done && <span className="folder-card__badge" aria-label="All reviewed">✓</span>}
       </div>
-      <div className="folder-card__body">
-        <div className="folder-card__name" title={folder.name}>
-          {folder.name}
-        </div>
-        <div className="folder-card__meta">
-          <span>{total.toLocaleString()} {total === 1 ? 'photo' : 'photos'}</span>
-          <span className={done ? 'folder-card__done' : 'folder-card__left'}>{meta}</span>
-        </div>
-        <div className="folder-card__bar">
-          <div className="folder-card__fill" style={{ width: `${pct}%` }} />
-        </div>
+      <div className="folder-card__name" title={folder.name}>
+        {folder.name}
+      </div>
+      <div className="folder-card__meta">
+        <span>{total.toLocaleString()} {total === 1 ? 'file' : 'files'}</span>
+        <span className={done ? 'folder-card__done' : 'folder-card__left'}>{meta}</span>
+      </div>
+      <div className="folder-card__bar">
+        <div className="folder-card__fill" style={{ width: `${pct}%` }} />
       </div>
     </button>
   );

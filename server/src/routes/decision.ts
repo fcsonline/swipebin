@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { computeStats, decide, undo } from '../store.js';
+import { computeStats, decide, resetFolder, resetKept, undo } from '../store.js';
 import type { DecisionAction } from '../types.js';
 import { folderOf } from './folders.js';
 
@@ -23,6 +23,28 @@ decisionRouter.post('/images/:id/decision', async (req, res) => {
   } catch (err) {
     console.error(`Decision failed for ${item.relPath}:`, err);
     res.status(500).json({ error: 'decision failed' });
+  }
+});
+
+decisionRouter.post('/reset', async (_req, res) => {
+  const folder = folderOf(res);
+  try {
+    await resetFolder(folder.id);
+    res.json({ ok: true, stats: computeStats(folder.id, folder.items) });
+  } catch (err) {
+    console.error('Reset failed:', err);
+    res.status(500).json({ error: 'reset failed' });
+  }
+});
+
+decisionRouter.post('/review-again', async (_req, res) => {
+  const folder = folderOf(res);
+  try {
+    await resetKept(folder.id);
+    res.json({ ok: true, stats: computeStats(folder.id, folder.items) });
+  } catch (err) {
+    console.error('Review-again failed:', err);
+    res.status(500).json({ error: 'review-again failed' });
   }
 });
 

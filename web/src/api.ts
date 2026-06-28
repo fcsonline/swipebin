@@ -88,6 +88,16 @@ export function postUndo(folderId: string): Promise<{
   return jsonFetch(`${base(folderId)}/undo`, { method: 'POST' });
 }
 
+/** Clear keep decisions so the kept files can be reviewed again (refinement pass). */
+export function reviewAgain(folderId: string): Promise<{ ok: boolean; stats: Stats }> {
+  return jsonFetch(`${base(folderId)}/review-again`, { method: 'POST' });
+}
+
+/** Clear all decisions for a folder, returning it to a fully unreviewed state. */
+export function resetFolder(folderId: string): Promise<{ ok: boolean; stats: Stats }> {
+  return jsonFetch(`${base(folderId)}/reset`, { method: 'POST' });
+}
+
 export function fetchTrash(folderId: string): Promise<TrashSummary> {
   return jsonFetch(`${base(folderId)}/trash`);
 }

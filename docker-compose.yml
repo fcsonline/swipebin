@@ -10,6 +10,7 @@ services:
       #    The name after /data/folders/ is what shows in the app's folder picker.
       #    Add or remove lines to add/remove collections.
       - ./photos:/data/folders/Photos
+      - "${HOME}/Downloads:/data/folders/Downloads"
       # - "${HOME}/Pictures/Trip 2024:/data/folders/Trip 2024"
       # - "${HOME}/Camera/RAW:/data/folders/RAW"
 

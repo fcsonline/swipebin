@@ -2,7 +2,7 @@
   "name": "swipebin",
   "version": "1.0.0",
   "private": true,
-  "description": "Tinder-style photo culling app — swipe to keep or delete images, including RAW.",
+  "description": "Tinder-style file culling app — swipe to keep or delete any file (images, RAW, PDFs, and more).",
   "license": "MIT",
   "workspaces": [
     "server",

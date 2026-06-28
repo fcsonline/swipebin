@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
 import { animate, motion, useMotionValue, useTransform, type PanInfo } from 'framer-motion';
 import {
   formatBytes,
@@ -37,9 +37,35 @@ export function SwipeCard({ folderId, item, isTop, stackIndex, command, onDecide
   const deleteOpacity = useTransform(x, [-150, -40], [1, 0]);
   const [exiting, setExiting] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  // A swipe ends with a synthetic click on the card; tracking how far the
+  // pointer travelled lets us tell a real tap (zoom) from a drag (no zoom),
+  // so swiping to keep/delete never re-opens the zoom view.
+  const pointerStart = useRef<{ x: number; y: number } | null>(null);
+  const movedRef = useRef(false);
 
   const preview = isPreviewable(item);
   const canZoom = isTop && item.kind === 'image' && !!onZoom;
+
+  function onPointerDown(e: ReactPointerEvent) {
+    pointerStart.current = { x: e.clientX, y: e.clientY };
+    movedRef.current = false;
+  }
+
+  function onPointerMove(e: ReactPointerEvent) {
+    const start = pointerStart.current;
+    if (!start) return;
+    const dx = e.clientX - start.x;
+    const dy = e.clientY - start.y;
+    if (dx * dx + dy * dy > 64) movedRef.current = true; // moved > 8px → it's a drag
+  }
+
+  function handleImageClick() {
+    if (movedRef.current) {
+      movedRef.current = false;
+      return;
+    }
+    onZoom?.(item);
+  }
 
   function flyAway(action: DecisionAction) {
     if (exiting) return;
@@ -85,6 +111,8 @@ export function SwipeCard({ folderId, item, isTop, stackIndex, command, onDecide
       drag={isTop && !exiting ? 'x' : false}
       dragSnapToOrigin
       dragElastic={0.6}
+      onPointerDownCapture={onPointerDown}
+      onPointerMoveCapture={onPointerMove}
       onDragEnd={onDragEnd}
       whileTap={isTop ? { cursor: 'grabbing' } : undefined}
     >
@@ -97,7 +125,7 @@ export function SwipeCard({ folderId, item, isTop, stackIndex, command, onDecide
             alt={item.name}
             draggable={false}
             onLoad={() => setLoaded(true)}
-            onClick={canZoom ? () => onZoom?.(item) : undefined}
+            onClick={canZoom ? handleImageClick : undefined}
             style={{ opacity: loaded ? 1 : 0 }}
           />
           {canZoom && loaded && (

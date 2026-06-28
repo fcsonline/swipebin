@@ -1,6 +1,6 @@
 # 🗑️ SwipeBin
 
-A Tinder-style photo culling app. Mount one or more folders of pictures, then **swipe right to keep** and **swipe left to delete** — one image at a time, on your phone or desktop.
+A Tinder-style file culling app. Mount one or more folders, then **swipe right to keep** and **swipe left to delete** — one file at a time, on your phone or desktop.
 
 - **Multiple folders** — mount several folders and pick which one to clean from a folder grid. Each shows its own progress, so the picker doubles as a **resume hub**: stop anytime, come back, continue where you left off.
 - **Reversible deletes** — "deleted" files are moved into a `.trash/` folder inside that folder, never destroyed. An **Undo** button (or the `Z` key) restores the last one. When you empty the trash at the end, you're shown the **total space freed**.
@@ -11,7 +11,8 @@ A Tinder-style photo culling app. Mount one or more folders of pictures, then **
 ## Screenshots
 
 <p align="center">
-  <img src="docs/screenshot-swipe.png" width="250" alt="Swipe a photo left to delete or right to keep" />
+  <img src="docs/screenshot-picker.png" width="250" alt="Folder picker / resume hub showing per-folder progress" />
+  <img src="docs/screenshot-swipe.png" width="250" alt="Swipe a file left to delete or right to keep" />
   <img src="docs/screenshot-done.png" width="250" alt="End screen with kept/deleted stats" />
   <img src="docs/screenshot-trash.png" width="250" alt="Empty trash confirmation dialog" />
 </p>

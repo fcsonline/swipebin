@@ -38,7 +38,7 @@ async function printBanner(folders: number, images: number): Promise<void> {
   const inDocker = existsSync('/.dockerenv');
   const folderPart = folders === 1 ? '1 folder' : `${folders.toLocaleString()} folders`;
   console.log('');
-  console.log(`  🗑️  SwipeBin ready — ${folderPart} · ${images.toLocaleString()} images`);
+  console.log(`  🗑️  SwipeBin ready — ${folderPart} · ${images.toLocaleString()} files`);
   console.log(`     ➜ Local:   http://localhost:${PORT}`);
   console.log(`     ➜ Network: ${url}`);
   if (inDocker && !PUBLIC_URL && !PUBLIC_HOST) {
@@ -60,7 +60,7 @@ async function main(): Promise<void> {
 
   if (catalog.totalImages() === 0) {
     const where = FOLDERS_DIR ? `${FOLDERS_DIR}/<folder>` : IMAGES_DIR;
-    console.warn(`  ⚠️  No images found — mount your photos under ${where}.`);
+    console.warn(`  ⚠️  No files found — mount your files under ${where}.`);
   }
 
   const app = express();

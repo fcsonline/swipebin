@@ -8,6 +8,8 @@ import {
   postDecision,
   postUndo,
   previewUrl,
+  resetFolder,
+  reviewAgain,
   type DecisionAction,
   type FileItem,
   type Stats,
@@ -61,7 +63,7 @@ export function SwipeSession({ folderId, folderName, showBack, onBack }: Props) 
       fresh.forEach((i) => seen.current.add(i.id));
       if (fresh.length > 0) setCards((prev) => [...prev, ...fresh]);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load images');
+      setError(err instanceof Error ? err.message : 'Failed to load files');
     } finally {
       fetching.current = false;
     }
@@ -80,7 +82,7 @@ export function SwipeSession({ folderId, folderName, showBack, onBack }: Props) 
         setStats(s);
         setTrash(t);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load images');
+        setError(err instanceof Error ? err.message : 'Failed to load files');
       } finally {
         setLoading(false);
       }
@@ -105,6 +107,12 @@ export function SwipeSession({ folderId, folderName, showBack, onBack }: Props) 
   useEffect(() => {
     if (!loading && cards.length < REFILL_BELOW) void refill();
   }, [cards.length, loading, refill]);
+
+  // Close the zoom view if its image has left the deck (was kept/deleted/undone),
+  // so a decided image can never linger as a zoomed preview.
+  useEffect(() => {
+    if (zoomItem && !cards.some((c) => c.id === zoomItem.id)) setZoomItem(null);
+  }, [cards, zoomItem]);
 
   const triggerSwipe = useCallback((action: DecisionAction) => {
     nonce.current += 1;
@@ -131,6 +139,50 @@ export function SwipeSession({ folderId, folderName, showBack, onBack }: Props) 
       setError(err instanceof Error ? err.message : 'Undo failed');
     }
   }, [folderId]);
+
+  const handleReviewAgain = useCallback(async () => {
+    try {
+      const res = await reviewAgain(folderId);
+      seen.current.clear();
+      setCanUndo(false);
+      setFreed(null);
+      setStats(res.stats);
+      const { items } = await fetchQueue(folderId, FETCH_BATCH);
+      items.forEach((i) => seen.current.add(i.id));
+      setCards(items);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not start another pass');
+    }
+  }, [folderId]);
+
+  const handleDone = useCallback(async () => {
+    try {
+      await resetFolder(folderId);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not reset this folder');
+      return;
+    }
+    if (showBack) {
+      onBack();
+      return;
+    }
+    // Single-folder mode has no picker — reload the now-fresh deck in place.
+    seen.current.clear();
+    setFreed(null);
+    setCanUndo(false);
+    setTrash({ count: 0, bytes: 0 });
+    try {
+      const [{ items }, s] = await Promise.all([
+        fetchQueue(folderId, FETCH_BATCH),
+        fetchStats(folderId),
+      ]);
+      items.forEach((i) => seen.current.add(i.id));
+      setStats(s);
+      setCards(items);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load files');
+    }
+  }, [folderId, showBack, onBack]);
 
   const doFlush = useCallback(async () => {
     setFlushing(true);
@@ -218,6 +270,8 @@ export function SwipeSession({ folderId, folderName, showBack, onBack }: Props) 
             trash={trash}
             freed={freed}
             onEmptyTrash={() => setConfirmOpen(true)}
+            onReviewAgain={() => void handleReviewAgain()}
+            onDone={() => void handleDone()}
           />
         )}
 

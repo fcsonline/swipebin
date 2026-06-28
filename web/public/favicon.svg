@@ -1,0 +1,15 @@
+<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="SwipeBin">
+  <rect width="512" height="512" rx="114" fill="#fe5f55" />
+  <g stroke="#fff" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <!-- swipe-left chevron -->
+    <path d="M138 214 L102 256 L138 298" stroke-width="24" />
+    <!-- swipe-right chevron -->
+    <path d="M374 214 L410 256 L374 298" stroke-width="24" />
+    <!-- trash bin -->
+    <g transform="translate(256 256) scale(10) translate(-24.5 -24.1)" stroke-width="2.6">
+      <path d="M16 18.5h17" />
+      <path d="M21 18.5v-2.2a1.6 1.6 0 0 1 1.6-1.6h3.8a1.6 1.6 0 0 1 1.6 1.6v2.2" />
+      <path d="M18.2 18.5l1.2 13.2a2 2 0 0 0 2 1.8h6.2a2 2 0 0 0 2-1.8l1.2-13.2" />
+    </g>
+  </g>
+</svg>

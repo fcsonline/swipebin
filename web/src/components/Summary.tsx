@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { formatBytes, type Stats, type TrashSummary } from '../api.js';
-import { CelebrateGraphic, TrashIcon } from './icons.js';
+import { CelebrateGraphic, CheckIcon, RefreshIcon, TrashIcon } from './icons.js';
 
 function Donut({ kept, deleted }: { kept: number; deleted: number }) {
   const total = kept + deleted;
@@ -47,9 +47,13 @@ interface Props {
   /** Cumulative space permanently freed this session (after emptying trash). */
   freed: TrashSummary | null;
   onEmptyTrash: () => void;
+  /** Re-review the kept files for another refinement pass. */
+  onReviewAgain: () => void;
+  /** Finish: reset this folder's state and return to the folders list. */
+  onDone: () => void;
 }
 
-export function Summary({ stats, trash, freed, onEmptyTrash }: Props) {
+export function Summary({ stats, trash, freed, onEmptyTrash, onReviewAgain, onDone }: Props) {
   const kept = stats?.kept ?? 0;
   const deleted = stats?.deleted ?? 0;
 
@@ -77,6 +81,12 @@ export function Summary({ stats, trash, freed, onEmptyTrash }: Props) {
         </div>
       </div>
 
+      {kept > 0 && (
+        <button className="btn-pill btn-pill--accent summary__again" onClick={onReviewAgain}>
+          <RefreshIcon size={16} /> Review {kept} {kept === 1 ? 'keeper' : 'keepers'} again
+        </button>
+      )}
+
       {freed ? (
         <div className="freed" role="status">
           <div className="freed__size">{formatBytes(freed.bytes)} freed</div>
@@ -84,27 +94,23 @@ export function Summary({ stats, trash, freed, onEmptyTrash }: Props) {
             {freed.count} {freed.count === 1 ? 'file' : 'files'} deleted forever
           </div>
         </div>
-      ) : (
+      ) : trash.count > 0 ? (
         <div className="trashcard">
-          {trash.count === 0 ? (
-            <div className="trashcard__line">
-              <TrashIcon size={18} /> Trash is empty
-            </div>
-          ) : (
-            <>
-              <div className="trashcard__line">
-                <TrashIcon size={18} />
-                <span>
-                  <strong>{trash.count}</strong> {trash.count === 1 ? 'file' : 'files'} in trash ·{' '}
-                  {formatBytes(trash.bytes)} to free
-                </span>
-              </div>
-              <button className="btn-pill btn-pill--danger" onClick={onEmptyTrash}>
-                <TrashIcon size={16} /> Empty Trash
-              </button>
-            </>
-          )}
+          <div className="trashcard__line">
+            <TrashIcon size={18} />
+            <span>
+              <strong>{trash.count}</strong> {trash.count === 1 ? 'file' : 'files'} in trash ·{' '}
+              {formatBytes(trash.bytes)} to free
+            </span>
+          </div>
+          <button className="btn-pill btn-pill--danger" onClick={onEmptyTrash}>
+            <TrashIcon size={16} /> Empty Trash
+          </button>
         </div>
+      ) : (
+        <button className="btn-pill btn-pill--success summary__done" onClick={onDone}>
+          <CheckIcon size={18} /> Done!
+        </button>
       )}
     </motion.div>
   );

@@ -150,6 +150,28 @@ export async function undo(folderId: string, root: string): Promise<UndoLogEntry
   return entry;
 }
 
+/**
+ * Clear every "keep" decision so the kept files re-enter the queue for another
+ * refinement pass. Deleted files stay in .trash (still counted as deleted); the
+ * keep entries are dropped from the undo log to match.
+ */
+export async function resetKept(folderId: string): Promise<void> {
+  const b = bucket(folderId);
+  for (const [relPath, decision] of Object.entries(b.decisions)) {
+    if (decision.action === 'keep') delete b.decisions[relPath];
+  }
+  b.undoLog = b.undoLog.filter((e) => e.action !== 'keep');
+  await persist();
+}
+
+/** Clear every decision for a folder, returning it to a fully unreviewed state. */
+export async function resetFolder(folderId: string): Promise<void> {
+  const b = bucket(folderId);
+  b.decisions = {};
+  b.undoLog = [];
+  await persist();
+}
+
 export interface TrashSummary {
   count: number;
   bytes: number;
